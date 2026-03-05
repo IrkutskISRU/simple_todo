@@ -2,6 +2,7 @@
 
 import typer
 import json
+import subprocess
 from pathlib import Path
 
 app = typer.Typer()
@@ -56,7 +57,7 @@ def renumber_todos(todos):
 def list_tasks(list_name: str):
     todos = load_todos(list_name)
     for t in todos:
-        status = "✅" if t.get("done") else "✔️ "
+        status = "✅ " if t.get("done") else "✔️ "
         typer.echo(f"{t['id']}. {status} {t['task']}")
 
 
@@ -145,6 +146,18 @@ def undo_cmd(list_name: str, id: int):
 def reset_cmd(list_name: str):
     list_name = ensure_list_name(list_name)
     reset_list(list_name)
+
+
+@app.command("dash")
+def dash_cmd():
+    """Показать дашборд по всем основным спискам."""
+    script = BASE_DIR / "dashboard.sh"
+    try:
+        subprocess.run(["bash", str(script)], check=True)
+    except FileNotFoundError:
+        typer.echo("Файл dashboard.sh не найден рядом с todo.py")
+    except subprocess.CalledProcessError as e:
+        typer.echo(f"Ошибка выполнения dashboard.sh (код {e.returncode})")
 
 
 @app.command("move")
