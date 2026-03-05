@@ -1,0 +1,6 @@
+yesterday
+daily
+today
+tomorrow
+pool
+trash
