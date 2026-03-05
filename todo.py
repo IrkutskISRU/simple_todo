@@ -99,6 +99,18 @@ def mark_undone(list_name: str, id: int):
         typer.echo("Неверный ID задачи")
 
 
+def reset_list(list_name: str):
+    todos = load_todos(list_name)
+    changed = 0
+    for t in todos:
+        if t.get("done"):
+            t["done"] = False
+            changed += 1
+    if changed:
+        save_todos(list_name, todos)
+    typer.echo(f"[{list_name}] Сброшено выполненных задач: {changed}")
+
+
 @app.command("list")
 def list_cmd(list_name: str):
     list_name = ensure_list_name(list_name)
@@ -127,6 +139,12 @@ def do_cmd(list_name: str, id: int):
 def undo_cmd(list_name: str, id: int):
     list_name = ensure_list_name(list_name)
     mark_undone(list_name, id)
+
+
+@app.command("reset")
+def reset_cmd(list_name: str):
+    list_name = ensure_list_name(list_name)
+    reset_list(list_name)
 
 
 @app.command("move")
