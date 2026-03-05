@@ -1,10 +1,12 @@
+#!/usr/bin/env python3
+
 import typer
 import json
 from pathlib import Path
 
 app = typer.Typer()
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).resolve().parent
 LISTS_FILE = BASE_DIR / "lists.txt"
 DEFAULT_LISTS = ["yesterday", "today", "tomorrow", "pool", "trash"]
 
