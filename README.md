@@ -8,7 +8,7 @@ Tasks are stored as JSON files per list in the project directory.
 
 - Python 3
 - `pip`
-- Bash (only for `todo dash`)
+- Bash (only for `todo show`)
 
 ## Installation
 
@@ -160,7 +160,7 @@ todo move today yesterday 5
 Runs `dashboard.sh` which prints several lists in one screen.
 
 ```bash
-todo dash
+todo show
 ```
 
 You can also run it directly:

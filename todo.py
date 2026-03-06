@@ -148,7 +148,7 @@ def reset_cmd(list_name: str):
     reset_list(list_name)
 
 
-@app.command("dash")
+@app.command("show")
 def dash_cmd():
     """Показать дашборд по всем основным спискам."""
     script = BASE_DIR / "dashboard.sh"
