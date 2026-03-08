@@ -169,3 +169,66 @@ You can also run it directly:
 bash dashboard.sh
 ```
 
+### Edit task text
+
+Edits the text of an existing task.
+
+```bash
+todo edit <list> <id> "new task text"
+```
+
+Example:
+
+```bash
+todo edit today 2 "Buy organic milk instead"
+```
+
+### Set task priority
+
+Moves a task to a new position, shifting other tasks accordingly.
+
+If moving up: tasks between the new and old positions shift down.
+
+If moving down: tasks between the old and new positions shift up.
+
+```bash
+todo priority <list> <from_id> <to_id>
+```
+
+Example:
+
+```bash
+todo priority today 5 2
+```
+
+```bash
+todo priority today 2 5
+```
+
+### Pin a task
+
+Purpose: Makes a task “sticky” — it will appear at the top of the list and be marked with a 📌 symbol.
+
+```bash
+todo pin <list> <id>
+```
+
+Example:
+
+```bash
+todo pin today 4
+```
+
+### Unpin a task
+
+Purpose: Removes the “sticky” status from a task. The task remains in the list but loses its top position and the 📌 symbol.
+
+```bash
+todo unpin <list> <id>
+```
+
+Example:
+
+```bash
+todo unpin today 4
+```
