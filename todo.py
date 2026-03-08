@@ -175,6 +175,12 @@ def edit_cmd(list_name: str, id: int, new_task: str):
     list_name = ensure_list_name(list_name)
     edit_task(list_name, id, new_task)
 
+@app.command("priority")
+def priority_cmd(list_name: str, from_id: int, to_id: int):
+    """Установить приоритет задачи: переместить задачу с позиции from_id на позицию to_id."""
+    list_name = ensure_list_name(list_name)
+    set_priority(list_name, from_id, to_id)
+
 @app.command("move")
 def move(src: str, dst: str, id: int):
     lists = load_lists()
@@ -197,6 +203,32 @@ def move(src: str, dst: str, id: int):
     save_todos(dst, todos_dst)
 
     typer.echo(f"Задача '{task['task']}' перемещена из {src} в {dst}")
+
+def set_priority(list_name: str, from_id: int, to_id: int):
+    todos = load_todos(list_name)
+    n = len(todos)
+
+    # Проверка корректности ID
+    if not (1 <= from_id <= n) or not (1 <= to_id <= n):
+        typer.echo("Неверный ID задачи")
+        raise typer.Exit(code=1)
+
+    # Преобразуем ID в индексы (от 0)
+    from_idx = from_id - 1
+    to_idx = to_id - 1
+
+    # Извлекаем задачу, которую нужно переместить
+    task_to_move = todos.pop(from_idx)
+
+    # Вставляем задачу в новую позицию
+    todos.insert(to_idx, task_to_move)
+
+    # Перенумеровываем все задачи
+    renumber_todos(todos)
+    save_todos(list_name, todos)
+
+    typer.echo(f"[{list_name}] Задача {from_id} перемещена на позицию {to_id}")
+
 
 
 if __name__ == "__main__":
