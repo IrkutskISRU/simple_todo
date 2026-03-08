@@ -39,8 +39,42 @@ def load_todos(list_name: str):
     path = get_list_path(list_name)
     if path.exists():
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            todos = json.load(f)
+            # Обеспечиваем наличие поля pinned у всех задач
+            for t in todos:
+                if "pinned" not in t:
+                    t["pinned"] = False
+            return todos
     return []
+
+def pin_task(list_name: str, id: int):
+    todos = load_todos(list_name)
+    if 0 < id <= len(todos):
+        todos[id - 1]["pinned"] = True
+        # Перемещаем закреплённые задачи в начало списка
+        pinned_tasks = [t for t in todos if t.get("pinned")]
+        other_tasks = [t for t in todos if not t.get("pinned")]
+        new_todos = pinned_tasks + other_tasks
+        renumber_todos(new_todos)
+        save_todos(list_name, new_todos)
+        typer.echo(f"[{list_name}] Задача {id} закреплена")
+    else:
+        typer.echo("Неверный ID задачи")
+
+def unpin_task(list_name: str, id: int):
+    todos = load_todos(list_name)
+    if 0 < id <= len(todos):
+        todos[id - 1]["pinned"] = False
+        # После открепления сортируем: сначала все закреплённые, потом остальные
+        pinned_tasks = [t for t in todos if t.get("pinned")]
+        other_tasks = [t for t in todos if not t.get("pinned")]
+        new_todos = pinned_tasks + other_tasks
+        renumber_todos(new_todos)
+        save_todos(list_name, new_todos)
+        typer.echo(f"[{list_name}] Задача {id} откреплена")
+    else:
+        typer.echo("Неверный ID задачи")
+
 
 
 def save_todos(list_name: str, todos):
@@ -58,7 +92,9 @@ def list_tasks(list_name: str):
     todos = load_todos(list_name)
     for t in todos:
         status = "✅ " if t.get("done") else "✔️ "
-        typer.echo(f"{t['id']}. {status} {t['task']}")
+        pin_symbol = "📌 " if t.get("pinned") else ""
+        typer.echo(f"{t['id']}. {pin_symbol}{status} {t['task']}")
+
 
 
 def add_task(list_name: str, task: str):
@@ -180,6 +216,19 @@ def priority_cmd(list_name: str, from_id: int, to_id: int):
     """Установить приоритет задачи: переместить задачу с позиции from_id на позицию to_id."""
     list_name = ensure_list_name(list_name)
     set_priority(list_name, from_id, to_id)
+
+@app.command("pin")
+def pin_cmd(list_name: str, id: int):
+    """Закрепить задачу в указанном списке."""
+    list_name = ensure_list_name(list_name)
+    pin_task(list_name, id)
+
+@app.command("unpin")
+def unpin_cmd(list_name: str, id: int):
+    """Открепить задачу в указанном списке."""
+    list_name = ensure_list_name(list_name)
+    unpin_task(list_name, id)
+
 
 @app.command("move")
 def move(src: str, dst: str, id: int):
