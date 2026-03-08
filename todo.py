@@ -111,6 +111,16 @@ def reset_list(list_name: str):
         save_todos(list_name, todos)
     typer.echo(f"[{list_name}] Сброшено выполненных задач: {changed}")
 
+def edit_task(list_name: str, id: int, new_task: str):
+    todos = load_todos(list_name)
+    if 0 < id <= len(todos):
+        old_task = todos[id - 1]["task"]
+        todos[id - 1]["task"] = new_task
+        save_todos(list_name, todos)
+        typer.echo(f"[{list_name}] Задача {id} отредактирована: '{old_task}' → '{new_task}'")
+    else:
+        typer.echo("Неверный ID задачи")
+
 
 @app.command("list")
 def list_cmd(list_name: str):
@@ -159,6 +169,11 @@ def dash_cmd():
     except subprocess.CalledProcessError as e:
         typer.echo(f"Ошибка выполнения dashboard.sh (код {e.returncode})")
 
+@app.command("edit")
+def edit_cmd(list_name: str, id: int, new_task: str):
+    """Редактировать текст задачи в указанном списке."""
+    list_name = ensure_list_name(list_name)
+    edit_task(list_name, id, new_task)
 
 @app.command("move")
 def move(src: str, dst: str, id: int):

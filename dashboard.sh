@@ -26,19 +26,22 @@ show_list() {
     -e 's/✔️/\x1b[1;37m✔️\x1b[0m/g'
 }
 
-section "YESTERDAY"
+section "ВЧЕРА"
 show_list yesterday
 
-section "DAILY"
+section "ЕЖЕДНЕВНОЕ"
 show_list daily
 
-section "TODAY"
+section "ТЕКУЩИЕ 3 ЗАДАЧИ"
+show_list current
+
+section "СЕГОДНЯ"
 show_list today
 
-section "TOMORROW"
+section "ЗАВТРА"
 show_list tomorrow
 
-section "POOL"
+section "ПУЛ"
 show_list pool
 
 echo ""
