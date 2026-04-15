@@ -155,6 +155,19 @@ Example:
 todo move today yesterday 5
 ```
 
+### Move all tasks between lists
+
+```bash
+todo move <src_list> <dst_list> --all
+```
+
+Example:
+
+```bash
+todo move today yesterday --all
+```
+
+
 ### Dashboard
 
 Runs `dashboard.sh` which prints several lists in one screen.

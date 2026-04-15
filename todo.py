@@ -231,26 +231,44 @@ def unpin_cmd(list_name: str, id: int):
 
 
 @app.command("move")
-def move(src: str, dst: str, id: int):
+def move(
+    src: str,
+    dst: str,
+    id: int = typer.Argument(None),
+    all: bool = typer.Option(False, "--all", help="Move all tasks from src to dst"),
+):
     lists = load_lists()
     if src not in lists or dst not in lists:
         typer.echo("Неизвестное имя списка")
         raise typer.Exit(code=1)
-
     todos_src = load_todos(src)
+    todos_dst = load_todos(dst)
+    if all:
+        if not todos_src:
+            typer.echo(f"[{src}] Нет задач для переноса")
+            return
+        moved_count = len(todos_src)
+        todos_dst.extend(todos_src)
+        todos_src = []
+        renumber_todos(todos_src)
+        renumber_todos(todos_dst)
+        save_todos(src, todos_src)
+        save_todos(dst, todos_dst)
+        typer.echo(f"Перенесено задач: {moved_count} из {src} в {dst}")
+        return
+    # old behavior: move one task by id
+    if id is None:
+        typer.echo("Укажи ID задачи или используй --all")
+        raise typer.Exit(code=1)
     if not (0 < id <= len(todos_src)):
         typer.echo("Неверный ID задачи")
         raise typer.Exit(code=1)
-
     task = todos_src.pop(id - 1)
     renumber_todos(todos_src)
     save_todos(src, todos_src)
-
-    todos_dst = load_todos(dst)
     todos_dst.append(task)
     renumber_todos(todos_dst)
     save_todos(dst, todos_dst)
-
     typer.echo(f"Задача '{task['task']}' перемещена из {src} в {dst}")
 
 def set_priority(list_name: str, from_id: int, to_id: int):
