@@ -26,7 +26,7 @@ def load_lists():
 def ensure_list_name(list_name: str) -> str:
     lists = load_lists()
     if list_name not in lists:
-        typer.echo("Неизвестное имя списка")
+        typer.echo("Unknown list name")
         raise typer.Exit(code=1)
     return list_name
 
@@ -40,7 +40,7 @@ def load_todos(list_name: str):
     if path.exists():
         with open(path, "r", encoding="utf-8") as f:
             todos = json.load(f)
-            # Обеспечиваем наличие поля pinned у всех задач
+            # Ensure all tasks have a pinned field
             for t in todos:
                 if "pinned" not in t:
                     t["pinned"] = False
@@ -51,29 +51,29 @@ def pin_task(list_name: str, id: int):
     todos = load_todos(list_name)
     if 0 < id <= len(todos):
         todos[id - 1]["pinned"] = True
-        # Перемещаем закреплённые задачи в начало списка
+        # Move pinned tasks to the beginning of the list
         pinned_tasks = [t for t in todos if t.get("pinned")]
         other_tasks = [t for t in todos if not t.get("pinned")]
         new_todos = pinned_tasks + other_tasks
         renumber_todos(new_todos)
         save_todos(list_name, new_todos)
-        typer.echo(f"[{list_name}] Задача {id} закреплена")
+        typer.echo(f"[{list_name}] Task {id} pinned")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 def unpin_task(list_name: str, id: int):
     todos = load_todos(list_name)
     if 0 < id <= len(todos):
         todos[id - 1]["pinned"] = False
-        # После открепления сортируем: сначала все закреплённые, потом остальные
+        # After unpinning, keep pinned tasks first, then the rest
         pinned_tasks = [t for t in todos if t.get("pinned")]
         other_tasks = [t for t in todos if not t.get("pinned")]
         new_todos = pinned_tasks + other_tasks
         renumber_todos(new_todos)
         save_todos(list_name, new_todos)
-        typer.echo(f"[{list_name}] Задача {id} откреплена")
+        typer.echo(f"[{list_name}] Task {id} unpinned")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 
 
@@ -102,7 +102,7 @@ def add_task(list_name: str, task: str):
     todos.append({"id": len(todos) + 1, "task": task, "done": False})
     renumber_todos(todos)
     save_todos(list_name, todos)
-    typer.echo(f"[{list_name}] Задача добавлена: {task}")
+    typer.echo(f"[{list_name}] Task added: {task}")
 
 
 def delete_task(list_name: str, id: int):
@@ -111,9 +111,9 @@ def delete_task(list_name: str, id: int):
         removed = todos.pop(id - 1)
         renumber_todos(todos)
         save_todos(list_name, todos)
-        typer.echo(f"[{list_name}] Задача удалена: {removed['task']}")
+        typer.echo(f"[{list_name}] Task deleted: {removed['task']}")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 
 def mark_done(list_name: str, id: int):
@@ -121,9 +121,9 @@ def mark_done(list_name: str, id: int):
     if 0 < id <= len(todos):
         todos[id - 1]["done"] = True
         save_todos(list_name, todos)
-        typer.echo(f"[{list_name}] Задача {id} отмечена как выполненная")
+        typer.echo(f"[{list_name}] Task {id} marked as done")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 
 def mark_undone(list_name: str, id: int):
@@ -131,9 +131,9 @@ def mark_undone(list_name: str, id: int):
     if 0 < id <= len(todos):
         todos[id - 1]["done"] = False
         save_todos(list_name, todos)
-        typer.echo(f"[{list_name}] Задача {id} снова помечена как невыполненная")
+        typer.echo(f"[{list_name}] Task {id} marked as not done again")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 
 def reset_list(list_name: str):
@@ -145,7 +145,7 @@ def reset_list(list_name: str):
             changed += 1
     if changed:
         save_todos(list_name, todos)
-    typer.echo(f"[{list_name}] Сброшено выполненных задач: {changed}")
+    typer.echo(f"[{list_name}] Completed tasks reset: {changed}")
 
 def edit_task(list_name: str, id: int, new_task: str):
     todos = load_todos(list_name)
@@ -153,9 +153,9 @@ def edit_task(list_name: str, id: int, new_task: str):
         old_task = todos[id - 1]["task"]
         todos[id - 1]["task"] = new_task
         save_todos(list_name, todos)
-        typer.echo(f"[{list_name}] Задача {id} отредактирована: '{old_task}' → '{new_task}'")
+        typer.echo(f"[{list_name}] Task {id} edited: '{old_task}' -> '{new_task}'")
     else:
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
 
 
 @app.command("list")
@@ -196,36 +196,36 @@ def reset_cmd(list_name: str):
 
 @app.command("show")
 def dash_cmd():
-    """Показать дашборд по всем основным спискам."""
+    """Show a dashboard for all main lists."""
     script = BASE_DIR / "dashboard.sh"
     try:
         subprocess.run(["bash", str(script)], check=True)
     except FileNotFoundError:
-        typer.echo("Файл dashboard.sh не найден рядом с todo.py")
+        typer.echo("dashboard.sh not found next to todo.py")
     except subprocess.CalledProcessError as e:
-        typer.echo(f"Ошибка выполнения dashboard.sh (код {e.returncode})")
+        typer.echo(f"dashboard.sh execution error (code {e.returncode})")
 
 @app.command("edit")
 def edit_cmd(list_name: str, id: int, new_task: str):
-    """Редактировать текст задачи в указанном списке."""
+    """Edit task text in the specified list."""
     list_name = ensure_list_name(list_name)
     edit_task(list_name, id, new_task)
 
 @app.command("priority")
 def priority_cmd(list_name: str, from_id: int, to_id: int):
-    """Установить приоритет задачи: переместить задачу с позиции from_id на позицию to_id."""
+    """Set task priority: move a task from position from_id to position to_id."""
     list_name = ensure_list_name(list_name)
     set_priority(list_name, from_id, to_id)
 
 @app.command("pin")
 def pin_cmd(list_name: str, id: int):
-    """Закрепить задачу в указанном списке."""
+    """Pin a task in the specified list."""
     list_name = ensure_list_name(list_name)
     pin_task(list_name, id)
 
 @app.command("unpin")
 def unpin_cmd(list_name: str, id: int):
-    """Открепить задачу в указанном списке."""
+    """Unpin a task in the specified list."""
     list_name = ensure_list_name(list_name)
     unpin_task(list_name, id)
 
@@ -239,13 +239,13 @@ def move(
 ):
     lists = load_lists()
     if src not in lists or dst not in lists:
-        typer.echo("Неизвестное имя списка")
+        typer.echo("Unknown list name")
         raise typer.Exit(code=1)
     todos_src = load_todos(src)
     todos_dst = load_todos(dst)
     if all:
         if not todos_src:
-            typer.echo(f"[{src}] Нет задач для переноса")
+            typer.echo(f"[{src}] No tasks to move")
             return
         moved_count = len(todos_src)
         todos_dst.extend(todos_src)
@@ -254,14 +254,14 @@ def move(
         renumber_todos(todos_dst)
         save_todos(src, todos_src)
         save_todos(dst, todos_dst)
-        typer.echo(f"Перенесено задач: {moved_count} из {src} в {dst}")
+        typer.echo(f"Moved tasks: {moved_count} from {src} to {dst}")
         return
     # old behavior: move one task by id
     if id is None:
-        typer.echo("Укажи ID задачи или используй --all")
+        typer.echo("Specify a task ID or use --all")
         raise typer.Exit(code=1)
     if not (0 < id <= len(todos_src)):
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
         raise typer.Exit(code=1)
     task = todos_src.pop(id - 1)
     renumber_todos(todos_src)
@@ -269,32 +269,32 @@ def move(
     todos_dst.append(task)
     renumber_todos(todos_dst)
     save_todos(dst, todos_dst)
-    typer.echo(f"Задача '{task['task']}' перемещена из {src} в {dst}")
+    typer.echo(f"Task '{task['task']}' moved from {src} to {dst}")
 
 def set_priority(list_name: str, from_id: int, to_id: int):
     todos = load_todos(list_name)
     n = len(todos)
 
-    # Проверка корректности ID
+    # Validate ID range
     if not (1 <= from_id <= n) or not (1 <= to_id <= n):
-        typer.echo("Неверный ID задачи")
+        typer.echo("Invalid task ID")
         raise typer.Exit(code=1)
 
-    # Преобразуем ID в индексы (от 0)
+    # Convert IDs to zero-based indices
     from_idx = from_id - 1
     to_idx = to_id - 1
 
-    # Извлекаем задачу, которую нужно переместить
+    # Extract task to move
     task_to_move = todos.pop(from_idx)
 
-    # Вставляем задачу в новую позицию
+    # Insert task into the new position
     todos.insert(to_idx, task_to_move)
 
-    # Перенумеровываем все задачи
+    # Renumber all tasks
     renumber_todos(todos)
     save_todos(list_name, todos)
 
-    typer.echo(f"[{list_name}] Задача {from_id} перемещена на позицию {to_id}")
+    typer.echo(f"[{list_name}] Task {from_id} moved to position {to_id}")
 
 
 

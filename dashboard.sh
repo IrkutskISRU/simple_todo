@@ -2,6 +2,8 @@
 
 reset
 
+python3 mon.py
+
 section() {
   local title="$1"
   echo ""
@@ -14,7 +16,6 @@ section() {
   printf -v line '%*s' "$side_len" ''
   line=${line// /─}
 
-  # серые линии + жёлтый заголовок (sublime‑style)
   printf '\033[38;5;240m%s \033[1;33m%s\033[38;5;240m %s\033[0m\n' "$line" "$title" "$line"
 }
 
@@ -26,22 +27,22 @@ show_list() {
     -e 's/✔️/\x1b[1;37m✔️\x1b[0m/g'
 }
 
-section "ВЧЕРА"
+section "YESTERDAY"
 show_list yesterday
 
-section "ЕЖЕДНЕВНОЕ"
+section "DAILY"
 show_list daily
 
-section "ТЕКУЩИЕ 3 ЗАДАЧИ"
+section "CURRENT 3 TODOS"
 show_list current
 
-section "СЕГОДНЯ"
+section "TODAY"
 show_list today
 
-section "ЗАВТРА"
+section "TOMORROW"
 show_list tomorrow
 
-section "ПУЛ"
+section "POOL"
 show_list pool
 
 echo ""
